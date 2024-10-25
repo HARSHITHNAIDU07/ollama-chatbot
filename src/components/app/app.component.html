@@ -1,0 +1,69 @@
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" #errorModal>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="errorModalLabel">Error!</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {{ error }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-settings-popup (hide)="settingsShown = false" [shown]="settingsShown" (saveSettings)="settingsSaved($event)" [existingSettings]="currentChat?.settings"></app-settings-popup>
+
+<app-header [(model)]="model" [models]="models" (deleteCurrentChat)="deleteCurrentChat()" style="height: 10%; max-height: 10%;" (settingsClicked)="showSettings()" (modelInfo)="showModelInfo()"></app-header>
+
+<div class="d-flex flex-column" style="height: 90%; max-height: 90%;">
+  <main class="d-flex flex-column justify-content-between w-100 h-100 mw-100" style="padding: 10px;">
+    <div style="padding: 10px; overflow-y: auto; overflow-x: hidden;" class="flex-grow-1 d-flex flex-column row-gap-2" #chatcontainer>
+      <app-chat-bubble *ngFor="let block of currentChat?.messages" [type]="block.type" [content]="block.content" [source]="block.source" [attr.aria-live]="block.active"></app-chat-bubble>
+    </div>
+    <form class="d-flex flex-row align-items-center" (ngSubmit)="ask()" style="width: 100%;">
+      <textarea
+        [(ngModel)]="question"
+        class="form-control form-rounded bg-light py-3 px-4 text-muted shadow-sm flex-grow-1"
+        aria-label="Prompt"
+        name="question"
+        (keyup.enter)="ask()"
+        (keyup.control.enter)="ask()"
+        placeholder="Enter your message..."
+        tabindex="0"
+        aria-description="Input field for the message to send to the currently selected model"
+        style="resize: none; border: 1px solid #ccc; font-size: 16px; line-height: 1.5;">
+      </textarea>
+      <button
+        *ngIf="!generating"
+        type="button"
+        class="btn btn-secondary"
+        (click)="ask()"
+        (keyup.enter)="ask()"
+        (keyup.space)="ask()"
+        tabindex="0"
+        aria-label="Ask"
+        aria-description="Send the prompt and system prompt to the model"
+        style="height: 100%; width: 6vw; background-color: #28955b; color: white; margin-left: 10px;">
+        Ask
+      </button>
+      <button
+        *ngIf="generating"
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="stop(currentChat?.id)"
+        (keyup.enter)="stop(currentChat?.id)"
+        (keyup.space)="stop(currentChat?.id)"
+        tabindex="0"
+        aria-label="Stop"
+        aria-description="Stop the model from answering"
+        style="height: 100%; width: 6vw; background-color: #e21414; color: white; margin-left: 10px;">
+        Stop
+      </button>
+    </form>
+  </main>
+</div>
